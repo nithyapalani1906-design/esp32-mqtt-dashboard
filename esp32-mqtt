@@ -483,15 +483,15 @@
 // ==========================================
 
 const MQTT_HOST =
-    "YOUR_CLUSTER_URL.s1.eu.hivemq.cloud";
+    "2074a6aaa49749098fadd7116c34597c.s1.eu.hivemq.cloud";
 
 const MQTT_PORT = 8884;
 
 const MQTT_USERNAME =
-    "YOUR_HIVEMQ_USERNAME";
+    "nithya";
 
 const MQTT_PASSWORD =
-    "YOUR_HIVEMQ_PASSWORD";
+    "nithyapalani";
 
 
 // ==========================================
