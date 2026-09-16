@@ -1,106 +1,153 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-    <title>ESP32 MQTT Dashboard</title>
+    <title>ESP32 IoT Dashboard</title>
+
 
     <!-- MQTT.js -->
-    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+
+    <script src="https://unpkg.com/mqtt@5.10.3/dist/mqtt.min.js">
+    </script>
+
 
     <style>
 
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
 
+
         body {
+
             font-family:
-                Inter,
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
+                Arial,
+                Helvetica,
                 sans-serif;
 
-            background: #f5f7fb;
-            color: #15171a;
+            background: #f5f7fa;
+
+            color: #111827;
 
             min-height: 100vh;
         }
 
+
         .container {
-            width: min(1000px, 92%);
+
+            width: 92%;
+
+            max-width: 1050px;
+
             margin: auto;
+
             padding: 40px 0;
         }
 
-        /* Header */
+
+        /* =========================
+           HEADER
+        ========================= */
 
         .header {
+
             display: flex;
-            justify-content: space-between;
+
+            justify-content:
+                space-between;
+
             align-items: center;
 
-            margin-bottom: 32px;
+            margin-bottom: 30px;
         }
+
 
         .title h1 {
-            font-size: 28px;
+
+            font-size: 30px;
+
             font-weight: 700;
-            letter-spacing: -0.5px;
+
+            letter-spacing: -0.7px;
         }
+
 
         .title p {
-            color: #777;
-            margin-top: 6px;
+
+            margin-top: 7px;
+
             font-size: 14px;
+
+            color: #6b7280;
         }
 
+
+        /* =========================
+           CONNECTION STATUS
+        ========================= */
+
         .connection {
+
             display: flex;
+
             align-items: center;
+
             gap: 8px;
 
             background: white;
-            padding: 9px 14px;
 
-            border-radius: 20px;
+            padding: 10px 15px;
+
+            border-radius: 30px;
 
             font-size: 13px;
+
             font-weight: 600;
 
             box-shadow:
-                0 2px 10px rgba(0,0,0,0.04);
+                0 4px 15px
+                rgba(0, 0, 0, 0.05);
         }
 
+
         .dot {
+
             width: 9px;
+
             height: 9px;
 
             border-radius: 50%;
 
-            background: #999;
-        }
-
-        .dot.connected {
-            background: #22c55e;
-        }
-
-        .dot.disconnected {
             background: #ef4444;
         }
 
 
-        /* Cards */
+        .dot.connected {
 
-        .grid {
+            background: #22c55e;
+
+            box-shadow:
+                0 0 0 4px
+                rgba(34, 197, 94, 0.12);
+        }
+
+
+        /* =========================
+           SENSOR GRID
+        ========================= */
+
+        .sensor-grid {
+
             display: grid;
 
             grid-template-columns:
@@ -109,184 +156,356 @@
             gap: 18px;
         }
 
+
         .card {
+
             background: white;
 
-            border-radius: 18px;
+            border-radius: 20px;
 
             padding: 25px;
 
             box-shadow:
-                0 5px 25px rgba(0,0,0,0.05);
+                0 6px 25px
+                rgba(0, 0, 0, 0.05);
         }
+
 
         .card-header {
+
             display: flex;
-            justify-content: space-between;
+
+            justify-content:
+                space-between;
+
             align-items: center;
 
-            margin-bottom: 22px;
+            margin-bottom: 25px;
         }
+
 
         .card-title {
-            font-size: 14px;
-            color: #777;
-            font-weight: 600;
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            color: #6b7280;
+
+            letter-spacing: 1px;
         }
 
-        .icon {
-            width: 40px;
-            height: 40px;
 
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .icon {
+
+            width: 42px;
+
+            height: 42px;
 
             border-radius: 12px;
 
-            background: #f2f4f7;
+            background: #f3f4f6;
 
-            font-size: 19px;
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 20px;
         }
 
+
         .value {
-            font-size: 42px;
+
+            font-size: 45px;
+
             font-weight: 700;
 
             letter-spacing: -1px;
         }
 
+
         .unit {
+
             font-size: 18px;
-            color: #777;
-            margin-left: 5px;
+
+            color: #6b7280;
+
+            margin-left: 4px;
         }
 
-        .status {
+
+        .description {
+
             margin-top: 8px;
-            color: #999;
+
             font-size: 13px;
+
+            color: #9ca3af;
         }
 
 
-        /* LED Card */
+        /* =========================
+           LED CARD
+        ========================= */
 
         .led-card {
-            grid-column: span 2;
+
+            margin-top: 18px;
+
+            background: #111827;
+
+            color: white;
+
+            border-radius: 20px;
+
+            padding: 25px;
         }
 
-        .led-control {
+
+        .led-header {
+
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            align-items: center;
+
+            margin-bottom: 25px;
+        }
+
+
+        .led-title {
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            color: #9ca3af;
+
+            letter-spacing: 1px;
+        }
+
+
+        .led-content {
+
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            align-items: center;
+        }
+
+
+        .led-info {
+
             display: flex;
 
             align-items: center;
-            justify-content: space-between;
+
+            gap: 15px;
         }
 
-        .led-status {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
 
-        .led-circle {
-            width: 45px;
-            height: 45px;
+        .led-light {
+
+            width: 48px;
+
+            height: 48px;
 
             border-radius: 50%;
 
-            background: #e5e7eb;
+            background: #374151;
 
-            transition: 0.25s;
+            transition: 0.3s;
         }
 
-        .led-circle.on {
+
+        .led-light.on {
+
             background: #22c55e;
 
             box-shadow:
-                0 0 25px rgba(34,197,94,0.45);
+                0 0 30px
+                rgba(34, 197, 94, 0.6);
         }
 
 
-        /* Toggle */
+        .led-state {
+
+            font-size: 20px;
+
+            font-weight: 700;
+        }
+
+
+        .led-pin {
+
+            margin-top: 4px;
+
+            font-size: 12px;
+
+            color: #9ca3af;
+        }
+
+
+        /* =========================
+           TOGGLE SWITCH
+        ========================= */
 
         .switch {
+
             position: relative;
 
-            width: 58px;
+            display: inline-block;
+
+            width: 60px;
+
             height: 32px;
         }
 
+
         .switch input {
+
             opacity: 0;
+
             width: 0;
+
             height: 0;
         }
 
-        .slider {
-            position: absolute;
 
-            cursor: pointer;
+        .slider {
+
+            position: absolute;
 
             inset: 0;
 
-            background: #d1d5db;
+            background: #4b5563;
 
-            border-radius: 30px;
+            border-radius: 50px;
 
-            transition: 0.25s;
+            cursor: pointer;
+
+            transition: 0.3s;
         }
 
-        .slider:before {
+
+        .slider::before {
+
             content: "";
 
             position: absolute;
 
             width: 24px;
+
             height: 24px;
 
             left: 4px;
+
             top: 4px;
 
             background: white;
 
             border-radius: 50%;
 
-            transition: 0.25s;
-
-            box-shadow:
-                0 2px 5px rgba(0,0,0,0.2);
+            transition: 0.3s;
         }
+
 
         input:checked + .slider {
-            background: #111827;
-        }
 
-        input:checked + .slider:before {
-            transform: translateX(26px);
+            background: #22c55e;
         }
 
 
-        /* Responsive */
+        input:checked + .slider::before {
+
+            transform:
+                translateX(28px);
+        }
+
+
+        /* =========================
+           MQTT STATUS
+        ========================= */
+
+        .mqtt-box {
+
+            margin-top: 18px;
+
+            padding: 16px 20px;
+
+            background: white;
+
+            border-radius: 15px;
+
+            color: #6b7280;
+
+            font-size: 13px;
+
+            box-shadow:
+                0 4px 15px
+                rgba(0, 0, 0, 0.04);
+        }
+
+
+        .mqtt-box strong {
+
+            color: #111827;
+        }
+
+
+        /* =========================
+           ERROR
+        ========================= */
+
+        #error {
+
+            display: none;
+
+            margin-top: 15px;
+
+            padding: 14px;
+
+            border-radius: 12px;
+
+            background: #fef2f2;
+
+            color: #b91c1c;
+
+            font-size: 13px;
+        }
+
+
+        /* =========================
+           MOBILE
+        ========================= */
 
         @media (max-width: 650px) {
 
             .header {
-                align-items: flex-start;
+
                 flex-direction: column;
+
+                align-items: flex-start;
 
                 gap: 15px;
             }
 
-            .grid {
+
+            .sensor-grid {
+
                 grid-template-columns: 1fr;
             }
 
-            .led-card {
-                grid-column: span 1;
-            }
 
             .value {
-                font-size: 36px;
+
+                font-size: 38px;
             }
         }
 
@@ -297,19 +516,24 @@
 
 <body>
 
+
 <div class="container">
 
 
-    <!-- Header -->
+    <!-- ==================================
+         HEADER
+    =================================== -->
 
-    <header class="header">
+    <div class="header">
 
         <div class="title">
 
-            <h1>ESP32 Dashboard</h1>
+            <h1>
+                ESP32 Dashboard
+            </h1>
 
             <p>
-                DHT11 environmental monitoring
+                DHT11 monitoring & LED control
             </p>
 
         </div>
@@ -319,184 +543,291 @@
 
             <span
                 id="statusDot"
-                class="dot disconnected">
+                class="dot">
             </span>
 
-            <span id="connectionText">
-                Disconnected
+            <span
+                id="connectionText">
+
+                Connecting...
+
             </span>
 
         </div>
 
-    </header>
+    </div>
 
 
 
-    <!-- Dashboard -->
+    <!-- ==================================
+         SENSOR CARDS
+    =================================== -->
 
-    <main class="grid">
+    <div class="sensor-grid">
 
 
-        <!-- Temperature -->
+        <!-- TEMPERATURE -->
 
         <div class="card">
 
             <div class="card-header">
 
                 <span class="card-title">
+
                     TEMPERATURE
+
                 </span>
 
+
                 <div class="icon">
+
                     🌡️
+
                 </div>
 
             </div>
+
 
             <div>
 
                 <span
                     id="temperature"
                     class="value">
-                    -- 
+
+                    --
+
                 </span>
+
 
                 <span class="unit">
+
                     °C
+
                 </span>
 
             </div>
 
-            <div class="status">
-                DHT11 sensor
-            </div>
+
+            <p class="description">
+
+                DHT11 temperature
+
+            </p>
 
         </div>
 
 
 
-        <!-- Humidity -->
+        <!-- HUMIDITY -->
 
         <div class="card">
 
             <div class="card-header">
 
                 <span class="card-title">
+
                     HUMIDITY
+
                 </span>
 
+
                 <div class="icon">
+
                     💧
+
                 </div>
 
             </div>
+
 
             <div>
 
                 <span
                     id="humidity"
                     class="value">
+
                     --
+
                 </span>
+
 
                 <span class="unit">
+
                     %
+
                 </span>
 
             </div>
 
-            <div class="status">
+
+            <p class="description">
+
                 Relative humidity
-            </div>
+
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ==================================
+         LED CONTROL
+    =================================== -->
+
+    <div class="led-card">
+
+
+        <div class="led-header">
+
+            <span class="led-title">
+
+                BUILT-IN LED
+
+            </span>
+
+
+            <span>
+
+                💡
+
+            </span>
 
         </div>
 
 
 
-        <!-- LED -->
+        <div class="led-content">
 
-        <div class="card led-card">
 
-            <div class="card-header">
+            <div class="led-info">
 
-                <span class="card-title">
-                    BUILT-IN LED
-                </span>
 
-                <div class="icon">
-                    💡
+                <div
+                    id="ledLight"
+                    class="led-light">
                 </div>
 
-            </div>
 
-
-            <div class="led-control">
-
-
-                <div class="led-status">
+                <div>
 
                     <div
-                        id="ledCircle"
-                        class="led-circle">
+                        id="ledState"
+                        class="led-state">
+
+                        OFF
+
                     </div>
 
-                    <div>
 
-                        <strong id="ledText">
-                            OFF
-                        </strong>
+                    <div class="led-pin">
 
-                        <div class="status">
-                            ESP32 GPIO 2
-                        </div>
+                        ESP32 GPIO 2
 
                     </div>
 
                 </div>
 
-
-                <label class="switch">
-
-                    <input
-                        type="checkbox"
-                        id="ledSwitch">
-
-                    <span class="slider"></span>
-
-                </label>
-
-
             </div>
+
+
+
+            <label class="switch">
+
+                <input
+                    type="checkbox"
+                    id="ledSwitch">
+
+                <span class="slider"></span>
+
+            </label>
+
 
         </div>
 
-    </main>
+    </div>
+
+
+
+    <!-- ==================================
+         MQTT STATUS
+    =================================== -->
+
+    <div class="mqtt-box">
+
+        <strong>
+            MQTT Status:
+        </strong>
+
+
+        <span id="mqttStatus">
+
+            Connecting to HiveMQ Cloud...
+
+        </span>
+
+    </div>
+
+
+
+    <!-- ==================================
+         ERROR
+    =================================== -->
+
+    <div id="error"></div>
+
 
 </div>
+
 
 
 <script>
 
 
-// ==========================================
-// HiveMQ Cloud Configuration
-// ==========================================
+// =====================================================
+// HIVEMQ CLOUD CONFIGURATION
+// =====================================================
+
+// IMPORTANT:
+//
+// Put your HiveMQ cluster hostname here.
+//
+// Example:
+//
+// abc123.s1.eu.hivemq.cloud
+//
+// DON'T use https://
+// DON'T use mqtt://
+// DON'T use wss://
+//
+// Just the hostname.
 
 const MQTT_HOST =
     "2074a6aaa49749098fadd7116c34597c.s1.eu.hivemq.cloud";
 
+
+// Browser MQTT connection
+
 const MQTT_PORT = 8884;
+
+
+// HiveMQ username
 
 const MQTT_USERNAME =
     "nithya";
+
+
+// HiveMQ password
 
 const MQTT_PASSWORD =
     "nithyapalani";
 
 
-// ==========================================
-// Topics
-// ==========================================
+
+// =====================================================
+// MQTT TOPICS
+// =====================================================
 
 const TEMP_TOPIC =
     "esp32/dht11/temperature";
@@ -508,204 +839,452 @@ const LED_TOPIC =
     "esp32/led";
 
 
-// ==========================================
-// DOM
-// ==========================================
+
+// =====================================================
+// GET HTML ELEMENTS
+// =====================================================
 
 const temperatureElement =
-    document.getElementById("temperature");
+    document.getElementById(
+        "temperature"
+    );
+
 
 const humidityElement =
-    document.getElementById("humidity");
+    document.getElementById(
+        "humidity"
+    );
+
 
 const ledSwitch =
-    document.getElementById("ledSwitch");
+    document.getElementById(
+        "ledSwitch"
+    );
 
-const ledCircle =
-    document.getElementById("ledCircle");
 
-const ledText =
-    document.getElementById("ledText");
+const ledLight =
+    document.getElementById(
+        "ledLight"
+    );
+
+
+const ledState =
+    document.getElementById(
+        "ledState"
+    );
+
 
 const statusDot =
-    document.getElementById("statusDot");
+    document.getElementById(
+        "statusDot"
+    );
+
 
 const connectionText =
-    document.getElementById("connectionText");
+    document.getElementById(
+        "connectionText"
+    );
 
 
-// ==========================================
-// MQTT Client
-// ==========================================
+const mqttStatus =
+    document.getElementById(
+        "mqttStatus"
+    );
+
+
+const errorBox =
+    document.getElementById(
+        "error"
+    );
+
+
+
+// =====================================================
+// CREATE MQTT CLIENT ID
+// =====================================================
 
 const clientId =
-    "dashboard-" +
+    "web-dashboard-" +
     Math.random()
         .toString(16)
         .substring(2, 10);
 
 
-const client = mqtt.connect(
 
-    `wss://${MQTT_HOST}:${MQTT_PORT}/mqtt`,
+// =====================================================
+// HIVEMQ WEBSOCKET URL
+// =====================================================
 
-    {
-        username: MQTT_USERNAME,
+const brokerURL =
+    "wss://" +
+    MQTT_HOST +
+    ":" +
+    MQTT_PORT +
+    "/mqtt";
 
-        password: MQTT_PASSWORD,
 
-        clientId: clientId,
-
-        clean: true,
-
-        reconnectPeriod: 3000,
-
-        connectTimeout: 10000
-    }
-
+console.log(
+    "MQTT Broker:",
+    brokerURL
 );
 
 
-// ==========================================
-// Connected
-// ==========================================
 
-client.on("connect", function () {
+// =====================================================
+// CONNECT TO HIVEMQ
+// =====================================================
 
-    console.log("Connected to HiveMQ");
+const client =
+    mqtt.connect(
 
-    statusDot.className =
-        "dot connected";
+        brokerURL,
 
-    connectionText.textContent =
-        "Connected";
+        {
 
+            clientId:
+                clientId,
 
-    // Subscribe
+            username:
+                MQTT_USERNAME,
 
-    client.subscribe(TEMP_TOPIC);
+            password:
+                MQTT_PASSWORD,
 
-    client.subscribe(HUM_TOPIC);
+            clean:
+                true,
 
-    client.subscribe(LED_TOPIC);
+            reconnectPeriod:
+                3000,
 
-});
-
-
-// ==========================================
-// Messages
-// ==========================================
-
-client.on("message", function (topic, message) {
-
-    const value =
-        message.toString();
-
-
-    // Temperature
-
-    if (topic === TEMP_TOPIC) {
-
-        temperatureElement.textContent =
-            parseFloat(value).toFixed(1);
-    }
-
-
-    // Humidity
-
-    if (topic === HUM_TOPIC) {
-
-        humidityElement.textContent =
-            parseFloat(value).toFixed(1);
-    }
-
-
-    // LED state
-
-    if (topic === LED_TOPIC) {
-
-        if (value === "ON") {
-
-            ledSwitch.checked = true;
-
-            ledCircle.classList.add("on");
-
-            ledText.textContent = "ON";
+            connectTimeout:
+                10000
 
         }
 
-        else if (value === "OFF") {
-
-            ledSwitch.checked = false;
-
-            ledCircle.classList.remove("on");
-
-            ledText.textContent = "OFF";
-        }
-    }
-
-});
-
-
-// ==========================================
-// Connection Error
-// ==========================================
-
-client.on("error", function (error) {
-
-    console.error(
-        "MQTT Error:",
-        error
     );
 
-});
 
 
-// ==========================================
-// Disconnected
-// ==========================================
+// =====================================================
+// MQTT CONNECTED
+// =====================================================
 
-client.on("offline", function () {
+client.on(
+    "connect",
+    function () {
 
-    statusDot.className =
-        "dot disconnected";
-
-    connectionText.textContent =
-        "Disconnected";
-
-});
+        console.log(
+            "Connected to HiveMQ Cloud!"
+        );
 
 
-// ==========================================
-// LED Control
-// ==========================================
+        statusDot.classList.add(
+            "connected"
+        );
+
+
+        connectionText.textContent =
+            "Connected";
+
+
+        mqttStatus.textContent =
+            "Connected to HiveMQ Cloud";
+
+
+        errorBox.style.display =
+            "none";
+
+
+        // Subscribe temperature
+
+        client.subscribe(
+            TEMP_TOPIC
+        );
+
+
+        // Subscribe humidity
+
+        client.subscribe(
+            HUM_TOPIC
+        );
+
+
+        // Subscribe LED
+
+        client.subscribe(
+            LED_TOPIC
+        );
+
+
+        console.log(
+            "Subscribed to all MQTT topics"
+        );
+
+    }
+);
+
+
+
+// =====================================================
+// MQTT MESSAGE RECEIVED
+// =====================================================
+
+client.on(
+    "message",
+    function (
+        topic,
+        message
+    ) {
+
+
+        const value =
+            message.toString();
+
+
+        console.log(
+            "MQTT DATA:",
+            topic,
+            value
+        );
+
+
+        // -----------------------------------------
+        // TEMPERATURE
+        // -----------------------------------------
+
+        if (
+            topic === TEMP_TOPIC
+        ) {
+
+            const temp =
+                parseFloat(value);
+
+
+            if (
+                !isNaN(temp)
+            ) {
+
+                temperatureElement.textContent =
+                    temp.toFixed(1);
+            }
+
+        }
+
+
+        // -----------------------------------------
+        // HUMIDITY
+        // -----------------------------------------
+
+        if (
+            topic === HUM_TOPIC
+        ) {
+
+            const humidity =
+                parseFloat(value);
+
+
+            if (
+                !isNaN(humidity)
+            ) {
+
+                humidityElement.textContent =
+                    humidity.toFixed(1);
+            }
+
+        }
+
+
+        // -----------------------------------------
+        // LED
+        // -----------------------------------------
+
+        if (
+            topic === LED_TOPIC
+        ) {
+
+            updateLED(value);
+
+        }
+
+    }
+);
+
+
+
+// =====================================================
+// UPDATE LED UI
+// =====================================================
+
+function updateLED(
+    state
+) {
+
+    if (
+        state === "ON"
+    ) {
+
+        ledSwitch.checked =
+            true;
+
+
+        ledLight.classList.add(
+            "on"
+        );
+
+
+        ledState.textContent =
+            "ON";
+
+    }
+
+
+    else if (
+        state === "OFF"
+    ) {
+
+        ledSwitch.checked =
+            false;
+
+
+        ledLight.classList.remove(
+            "on"
+        );
+
+
+        ledState.textContent =
+            "OFF";
+
+    }
+
+}
+
+
+
+// =====================================================
+// LED SWITCH
+// =====================================================
 
 ledSwitch.addEventListener(
     "change",
     function () {
 
+
         const state =
-            this.checked ? "ON" : "OFF";
+            this.checked
+            ? "ON"
+            : "OFF";
+
 
         console.log(
-            "Publishing:",
+            "Sending LED command:",
             state
         );
 
+
         client.publish(
+
             LED_TOPIC,
+
             state,
+
             {
+
                 qos: 0,
+
                 retain: true
+
             }
+
         );
 
     }
 );
 
 
+
+// =====================================================
+// MQTT ERROR
+// =====================================================
+
+client.on(
+    "error",
+    function (error) {
+
+
+        console.error(
+            "MQTT ERROR:",
+            error
+        );
+
+
+        connectionText.textContent =
+            "Connection Error";
+
+
+        mqttStatus.textContent =
+            "Unable to connect to HiveMQ";
+
+
+        errorBox.style.display =
+            "block";
+
+
+        errorBox.textContent =
+            "MQTT Error: " +
+            error.message;
+
+    }
+);
+
+
+
+// =====================================================
+// MQTT OFFLINE
+// =====================================================
+
+client.on(
+    "offline",
+    function () {
+
+
+        statusDot.classList.remove(
+            "connected"
+        );
+
+
+        connectionText.textContent =
+            "Disconnected";
+
+
+        mqttStatus.textContent =
+            "Connection lost. Reconnecting...";
+
+    }
+);
+
+
+
+// =====================================================
+// MQTT RECONNECT
+// =====================================================
+
+client.on(
+    "reconnect",
+    function () {
+
+
+        connectionText.textContent =
+            "Reconnecting...";
+
+
+        mqttStatus.textContent =
+            "Trying to reconnect...";
+
+    }
+);
+
 </script>
+
 
 </body>
 
